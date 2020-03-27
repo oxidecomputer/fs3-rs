@@ -9,7 +9,7 @@ use std::os::unix::fs::MetadataExt;
 use std::os::unix::io::{AsRawFd, FromRawFd};
 use std::path::Path;
 
-use FsStats;
+use crate::FsStats;
 
 pub fn duplicate(file: &File) -> Result<File> {
     unsafe {
@@ -107,7 +107,7 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub fn allocate(file: &File, len: u64) -> Result<()> {
-    let stat = try!(file.metadata());
+    let stat = file.metadata()?;
 
     if len > stat.blocks() as u64 * 512 {
         let mut fstore = libc::fstore_t {
@@ -144,7 +144,7 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
           target_os = "haiku"))]
 pub fn allocate(file: &File, len: u64) -> Result<()> {
     // No file allocation API available, just set the length if necessary.
-    if len > try!(file.metadata()).len() as u64 {
+    if len > file.metadata()?.len() as u64 {
         file.set_len(len)
     } else {
         Ok(())
@@ -181,7 +181,7 @@ mod test {
     use std::fs::{self, File};
     use std::os::unix::io::AsRawFd;
 
-    use {FileExt, lock_contended_error};
+    use crate::{FileExt, lock_contended_error};
 
     /// The duplicate method returns a file with a new file descriptor.
     #[test]

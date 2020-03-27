@@ -17,7 +17,7 @@ use winapi::um::processthreadsapi::GetCurrentProcess;
 use winapi::um::winbase::GetFileInformationByHandleEx;
 use winapi::um::winnt::DUPLICATE_SAME_ACCESS;
 
-use FsStats;
+use crate::FsStats;
 
 pub fn duplicate(file: &File) -> Result<File> {
     unsafe {
@@ -57,7 +57,7 @@ pub fn allocated_size(file: &File) -> Result<u64> {
 }
 
 pub fn allocate(file: &File, len: u64) -> Result<()> {
-    if try!(allocated_size(file)) < len {
+    if allocated_size(file)? < len {
         unsafe {
             let mut info: FILE_ALLOCATION_INFO = mem::zeroed();
             *info.AllocationSize.QuadPart_mut() = len as i64;
@@ -71,7 +71,7 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
             }
         }
     }
-    if try!(file.metadata()).len() < len {
+    if file.metadata()?.len() < len {
         file.set_len(len)
     } else {
         Ok(())
@@ -126,7 +126,7 @@ fn volume_path(path: &Path, volume_path: &mut [u16]) -> Result<()> {
 
 pub fn statvfs(path: &Path) -> Result<FsStats> {
     let root_path: &mut [u16] = &mut [0; 261];
-    try!(volume_path(path, root_path));
+    volume_path(path, root_path)?;
     unsafe {
 
         let mut sectors_per_cluster = 0;
@@ -156,13 +156,12 @@ pub fn statvfs(path: &Path) -> Result<FsStats> {
 
 #[cfg(test)]
 mod test {
-
     extern crate tempdir;
 
     use std::fs;
     use std::os::windows::io::AsRawHandle;
 
-    use {FileExt, lock_contended_error};
+    use crate::{FileExt, lock_contended_error};
 
     /// The duplicate method returns a file with a new file handle.
     #[test]
