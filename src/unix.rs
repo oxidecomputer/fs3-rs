@@ -111,7 +111,14 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
     if ret == 0 {
         Ok(())
     } else {
-        Err(Error::last_os_error())
+        let err = Error::last_os_error();
+        if err.kind() == ErrorKind::InvalidInput {
+            // Some filesystems do not support fallocate, so make a fallback attempt via the
+            // standard ftruncate approach.
+            truncate_to(file, len)
+        } else {
+            Err(err)
+        }
     }
 }
 
@@ -155,7 +162,11 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
     target_os = "haiku"
 ))]
 pub fn allocate(file: &File, len: u64) -> Result<()> {
-    // No file allocation API available, just set the length if necessary.
+    // No file allocation API available.  Just set the length, if necessary.
+    truncate_to(file, len)
+}
+
+fn truncate_to(file: &File, len: u64) -> Result<()> {
     if len > file.metadata()?.len() as u64 {
         file.set_len(len)
     } else {
