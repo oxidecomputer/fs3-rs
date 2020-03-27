@@ -153,13 +153,15 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
     }
 }
 
-#[cfg(any(
-    target_os = "openbsd",
-    target_os = "netbsd",
-    target_os = "dragonfly",
-    target_os = "solaris",
-    target_os = "illumos",
-    target_os = "haiku"
+#[cfg(all(
+    not(any(target_os = "macos", target_os = "ios")),
+    not(any(
+        target_os = "linux",
+        target_os = "freebsd",
+        target_os = "android",
+        target_os = "emscripten",
+        target_os = "nacl"
+    ))
 ))]
 pub fn allocate(file: &File, len: u64) -> Result<()> {
     // No file allocation API available.  Just set the length, if necessary.
