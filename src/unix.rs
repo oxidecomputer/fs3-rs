@@ -127,6 +127,8 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
     let stat = file.metadata()?;
 
     if len > stat.blocks() as u64 * 512 {
+        // This must be mutable, since the fst_bytesalloc field is used to communicate out the
+        // number of bytes allocated by the fcntl() operation.
         let mut fstore = libc::fstore_t {
             fst_flags: libc::F_ALLOCATECONTIG,
             fst_posmode: libc::F_PEOFPOSMODE,
@@ -135,11 +137,11 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
             fst_bytesalloc: 0,
         };
 
-        let ret = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_PREALLOCATE, &fstore) };
+        let ret = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_PREALLOCATE, &mut fstore) };
         if ret == -1 {
             // Unable to allocate contiguous disk space; attempt to allocate non-contiguously.
             fstore.fst_flags = libc::F_ALLOCATEALL;
-            let ret = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_PREALLOCATE, &fstore) };
+            let ret = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_PREALLOCATE, &mut fstore) };
             if ret == -1 {
                 return Err(Error::last_os_error());
             }
