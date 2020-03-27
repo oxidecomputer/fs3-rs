@@ -8,6 +8,9 @@ documentation = "https://docs.rs/fs3"
 description = "Cross-platform file locks and file duplication."
 keywords = ["file", "file-system", "lock", "duplicate", "flock"]
 
+[build-dependencies]
+rustc_version = "0.2"
+
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.49"
 
