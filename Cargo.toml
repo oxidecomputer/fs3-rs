@@ -9,7 +9,7 @@ description = "Cross-platform file locks and file duplication."
 keywords = ["file", "file-system", "lock", "duplicate", "flock"]
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.30"
+libc = "0.2.49"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["handleapi", "processthreadsapi", "winerror", "fileapi", "winbase", "std"] }
