@@ -193,13 +193,13 @@ mod test {
     use std::fs::{self, File};
     use std::os::unix::io::AsRawFd;
 
+    use crate::test::tmpfile;
     use crate::{lock_contended_error, FileExt};
 
     /// The duplicate method returns a file with a new file descriptor.
     #[test]
     fn duplicate_new_fd() {
-        let tempdir = tempdir::TempDir::new("fs2").unwrap();
-        let path = tempdir.path().join("fs2");
+        let (_dir, path) = tmpfile();
         let file1 = fs::OpenOptions::new()
             .write(true)
             .create(true)
@@ -212,12 +212,7 @@ mod test {
     /// The duplicate method should preservesthe close on exec flag.
     #[test]
     fn duplicate_cloexec() {
-        fn flags(file: &File) -> libc::c_int {
-            unsafe { libc::fcntl(file.as_raw_fd(), libc::F_GETFL, 0) }
-        }
-
-        let tempdir = tempdir::TempDir::new("fs2").unwrap();
-        let path = tempdir.path().join("fs2");
+        let (_dir, path) = tmpfile();
         let file1 = fs::OpenOptions::new()
             .write(true)
             .create(true)
@@ -225,6 +220,9 @@ mod test {
             .unwrap();
         let file2 = file1.duplicate().unwrap();
 
+        fn flags(file: &File) -> libc::c_int {
+            unsafe { libc::fcntl(file.as_raw_fd(), libc::F_GETFL, 0) }
+        }
         assert_eq!(flags(&file1), flags(&file2));
     }
 
@@ -232,8 +230,7 @@ mod test {
     /// held on the file descriptor.
     #[test]
     fn lock_replace() {
-        let tempdir = tempdir::TempDir::new("fs2").unwrap();
-        let path = tempdir.path().join("fs2");
+        let (_dir, path) = tmpfile();
         let file1 = fs::OpenOptions::new()
             .write(true)
             .create(true)
@@ -262,8 +259,7 @@ mod test {
     /// Tests that locks are shared among duplicated file descriptors.
     #[test]
     fn lock_duplicate() {
-        let tempdir = tempdir::TempDir::new("fs2").unwrap();
-        let path = tempdir.path().join("fs2");
+        let (_dir, path) = tmpfile();
         let file1 = fs::OpenOptions::new()
             .write(true)
             .create(true)

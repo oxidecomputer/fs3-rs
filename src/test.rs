@@ -5,11 +5,11 @@ use std::fs;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
 
-fn tmpdir() -> tempdir::TempDir {
+pub(crate) fn tmpdir() -> tempdir::TempDir {
     tempdir::TempDir::new("fs3").unwrap()
 }
 
-fn tmpfile() -> (tempdir::TempDir, PathBuf) {
+pub(crate) fn tmpfile() -> (tempdir::TempDir, PathBuf) {
     let dir = tmpdir();
     let path = dir.path().join("file");
     (dir, path)
