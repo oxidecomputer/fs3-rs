@@ -183,8 +183,8 @@ fn filesystem_space() {
     let free_space = free_space(&tempdir.path()).unwrap();
     let available_space = available_space(&tempdir.path()).unwrap();
 
-    assert!(total_space > free_space);
-    assert!(total_space > available_space);
+    assert!(total_space >= free_space);
+    assert!(total_space >= available_space);
     assert!(available_space <= free_space);
 }
 
