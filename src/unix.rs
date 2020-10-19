@@ -100,7 +100,7 @@ pub fn allocated_size(file: &File) -> Result<u64> {
 }
 
 #[cfg(any(
-    target_os = "linux",
+    all(target_os = "linux", not(target_env = "uclibc")),
     target_os = "freebsd",
     target_os = "android",
     target_os = "emscripten",
@@ -158,7 +158,7 @@ pub fn allocate(file: &File, len: u64) -> Result<()> {
 #[cfg(all(
     not(any(target_os = "macos", target_os = "ios")),
     not(any(
-        target_os = "linux",
+        all(target_os = "linux", not(target_env = "uclibc")),
         target_os = "freebsd",
         target_os = "android",
         target_os = "emscripten",
