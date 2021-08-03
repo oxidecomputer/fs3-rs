@@ -1,6 +1,6 @@
 [package]
 name = "fs3"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2018"
 authors = ["Dan Burkert <dan@danburkert.com>", "fs3 Authors"]
 license = "MIT/Apache-2.0"
