@@ -1,6 +1,6 @@
 [package]
 name = "fs3"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2018"
 authors = ["Dan Burkert <dan@danburkert.com>", "fs3 Authors"]
 license = "MIT/Apache-2.0"
@@ -12,7 +12,7 @@ description = "Cross-platform file locks and file duplication."
 keywords = ["file", "file-system", "lock", "duplicate", "flock"]
 
 [build-dependencies]
-rustc_version = "0.2"
+rustc_version = "0.4"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.49"
